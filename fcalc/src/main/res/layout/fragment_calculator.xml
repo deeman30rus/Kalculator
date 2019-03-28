@@ -23,4 +23,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
     />
+
+    <TextView
+            android:id="@+id/expression_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/guideline"
+            tools:text="expression"
+    />
 </android.support.constraint.ConstraintLayout>
