@@ -22,7 +22,7 @@ class CalcFragment : MvcFragment<CalculatorView, CalculatorView.Controller>() {
     override fun initMvcControllerFactory() {
         mvcControllerFactory = object : MvcController.Factory<CalculatorView.Controller>() {
 
-            override fun create() = CalculatorView.Controller()
+            override fun create() = CalculatorView.Controller(context!!)
         }
     }
 }
