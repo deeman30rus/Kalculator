@@ -1,27 +1,28 @@
 package com.delizarov.fcalc.ui
 
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import com.delizarov.core.fragments.BaseFragment
+import com.delizarov.core.mvc.MvcController
+import com.delizarov.core.mvc.MvcFragment
+import com.delizarov.core.mvc.MvcView
 import com.delizarov.fcalc.R
 import com.delizarov.fcalc.mvc.CalculatorView
 
-class CalcFragment : BaseFragment() {
+class CalcFragment : MvcFragment<CalculatorView, CalculatorView.Controller>() {
 
-    private val controller = CalculatorView.Controller()
-    private lateinit var view: CalculatorView
+    override val layoutResId: Int
+        get() = R.layout.fragment_calculator
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_calculator, container, false)
+    override fun initMvcViewFactory() {
+        mvcViewFactory = object : MvcView.Factory<CalculatorView>() {
+
+            override fun create() = CalculatorView(view!!, mvcController)
+        }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun initMvcControllerFactory() {
+        mvcControllerFactory = object : MvcController.Factory<CalculatorView.Controller>() {
 
-        this.view = CalculatorView(controller, view)
-        controller.attachView(this.view)
+            override fun create() = CalculatorView.Controller()
+        }
     }
 }

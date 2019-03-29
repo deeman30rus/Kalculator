@@ -1,4 +1,4 @@
-package com.delizarov.core.fragments
+package com.delizarov.core.android
 
 import android.support.v4.app.Fragment
 

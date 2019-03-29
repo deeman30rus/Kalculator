@@ -2,6 +2,8 @@ package com.delizarov.fcalc.mvc
 
 import android.view.View
 import android.widget.TextView
+import com.delizarov.core.mvc.MvcController
+import com.delizarov.core.mvc.MvcView
 import com.delizarov.core.observable.CloseableSubscription
 import com.delizarov.fcalc.R
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
@@ -9,9 +11,9 @@ import com.delizarov.views.com.delizarov.views.keyboard.Key
 import com.delizarov.views.com.delizarov.views.keyboard.KeyboardView
 
 class CalculatorView(
-    private val eventListener: EventListener,
-    view: View
-) {
+    view: View,
+    eventListener: EventListener
+) : MvcView(view, eventListener) {
 
     private val expressionView = view.findViewById<TextView>(R.id.expression_view)
     private val keyboardView = view.findViewById<KeyboardView>(R.id.keyboard)
@@ -30,18 +32,18 @@ class CalculatorView(
         expressionView.text = expression
     }
 
-    interface EventListener {
+    interface EventListener : MvcView.EventListener {
 
         fun onKeyboardKeyPressed(key: Key)
     }
 
-    class Controller : EventListener {
+    class Controller : MvcController<CalculatorView>(), EventListener {
 
         private val model = CalculationModel("")
 
         private var subscription: CloseableSubscription? = null
 
-        fun attachView(view: CalculatorView) {
+        override fun attachView(view: CalculatorView) {
 
             subscription?.close()
             subscription = model.subscribe {
@@ -49,8 +51,9 @@ class CalculatorView(
             }
         }
 
-        fun detachView() = subscription?.close()
-
+        override fun detachView() {
+            subscription?.close()
+        }
 
         override fun onKeyboardKeyPressed(key: Key) = when(key) {
 
