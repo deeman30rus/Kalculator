@@ -12,20 +12,13 @@ interface Observer<T> {
     fun onNext(item: T)
 }
 
-abstract class Observable<T>(
-    initial: T
-) {
+open class Observable<T> {
 
-    private val observers = mutableListOf<Observer<T>>()
-    var item: T = initial
-        set(value) {
+    protected val observers = mutableListOf<Observer<T>>()
 
-            if (field == value) return
-
-            field = value
-            notifyObservers()
-        }
-
+    open fun emit(item: T) {
+        notifyObservers(item)
+    }
 
     fun subscribe(handler: ValueHandler<T>): CloseableSubscription {
 
@@ -43,7 +36,7 @@ abstract class Observable<T>(
         observers.remove(observer)
     }
 
-    private fun notifyObservers() {
+    protected fun notifyObservers(item: T) {
 
         observers.forEach { it.onNext(item) }
     }

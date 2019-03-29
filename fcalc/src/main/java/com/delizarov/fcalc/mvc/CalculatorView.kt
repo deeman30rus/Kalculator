@@ -5,6 +5,7 @@ import android.widget.TextView
 import com.delizarov.core.mvc.MvcController
 import com.delizarov.core.mvc.MvcView
 import com.delizarov.core.observable.CloseableSubscription
+import com.delizarov.core.observable.ObservableProperty
 import com.delizarov.fcalc.R
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
 import com.delizarov.views.com.delizarov.views.keyboard.Key
@@ -39,7 +40,7 @@ class CalculatorView(
 
     class Controller : MvcController<CalculatorView>(), EventListener {
 
-        private val model = CalculationModel("")
+        private val model = ObservableProperty("")
 
         private var subscription: CloseableSubscription? = null
 
