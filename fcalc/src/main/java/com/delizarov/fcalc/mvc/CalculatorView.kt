@@ -5,9 +5,10 @@ import android.view.View
 import android.widget.TextView
 import com.delizarov.core.mvc.MvcController
 import com.delizarov.core.mvc.MvcView
-import com.delizarov.core.observable.CloseableSubscription
-import com.delizarov.core.observable.ObservableProperty
+import com.delizarov.core.observable.Cancelable
+import com.delizarov.domain.math.expression.Expression
 import com.delizarov.fcalc.R
+import com.delizarov.fcalc.vm.ExpressionViewModel
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
 import com.delizarov.views.com.delizarov.views.keyboard.Key
 import com.delizarov.views.com.delizarov.views.keyboard.KeyboardView
@@ -19,12 +20,13 @@ class CalculatorView(
 
     private val expressionView = view.findViewById<TextView>(R.id.expression_view)
     private val keyboardView = view.findViewById<KeyboardView>(R.id.keyboard)
+    private val resultView = view.findViewById<TextView>(R.id.result_view)
 
     init {
 
         val context = view.context
 
-        keyboardView.onKeyPressed = {key ->
+        keyboardView.onKeyPressed = { key ->
             eventListener.onKeyboardKeyPressed(key)
         }
         keyboardView.adapter = KeyboardView.Adapter(context, keyboardView, GridKeyPattern.DefaultPattern)
@@ -32,6 +34,10 @@ class CalculatorView(
 
     fun showExpression(expression: String) {
         expressionView.text = expression
+    }
+
+    fun showResult(result: Float?) {
+        resultView.text = result?.toString() ?: ""
     }
 
     interface EventListener : MvcView.EventListener {
@@ -43,46 +49,55 @@ class CalculatorView(
         private val context: Context
     ) : MvcController<CalculatorView>(), EventListener {
 
-        private val model = ObservableProperty("")
+        private val vm = ExpressionViewModel(Expression(""))
 
-        private var subscription: CloseableSubscription? = null
+        private var subscription: Cancelable? = null
 
         override fun attachView(view: CalculatorView) {
 
-            subscription?.close()
-            subscription = model.subscribe {
-                view.showExpression(it)
-            }
+            subscription?.cancel()
+            subscription = vm.subscribe(
+                { expr -> view.showExpression(expr)},
+                { res -> view.showResult(res)}
+            )
         }
 
         override fun detachView() {
-            subscription?.close()
+            subscription?.cancel()
         }
 
-        override fun onKeyboardKeyPressed(key: Key) = when(key) {
+        override fun onKeyboardKeyPressed(key: Key) = when (key) {
 
             Key.Key0, Key.Key1, Key.Key2, Key.Key3, Key.Key4,
-                Key.Key5, Key.Key6, Key.Key7, Key.Key8, Key.Key9,
-                Key.KeyPlus, Key.KeyMinus, Key.KeyMultiply, Key.KeyDivide, Key.KeyPercent,
-                Key.KeyDot -> model.item += key.toResString(context)
+            Key.Key5, Key.Key6, Key.Key7, Key.Key8, Key.Key9,
+            Key.KeyPlus, Key.KeyMinus, Key.KeyMultiply, Key.KeyDivide, Key.KeyPercent,
+            Key.KeyDot -> {
+                vm.addStringToExpression(key.toResString(context))
+            }
 
-            Key.KeyAC, Key.KeyClear -> model.item = ""
+            Key.KeyAC, Key.KeyClear -> vm.clearExpression()
 
-            Key.KeyEquals -> model.item = model.item
+            Key.KeyEquals ->  {
+
+                vm.calculateResult()
+
+            }
 
             Key.KeyBackspace -> {
-                if (model.item.isNotEmpty()) {
-                    model.item = model.item.slice(0 until model.item.length -1)
+                if (vm.isNotEmpty()) {
+                    vm.deleteLastChar()
                 } else {
                     // do nothing
                 }
             }
         }
+
+
     }
 }
 
 private fun Key.toResString(context: Context) = context.getString(
-    when(this) {
+    when (this) {
         Key.Key0 -> com.delizarov.views.R.string.key_0
         Key.Key1 -> com.delizarov.views.R.string.key_1
         Key.Key2 -> com.delizarov.views.R.string.key_2

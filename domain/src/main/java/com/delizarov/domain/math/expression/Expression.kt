@@ -25,4 +25,14 @@ class Expression(
             field = value
             isDirty = false
         }
+
+    operator fun plus(str: String): Expression {
+        expr += str
+
+        return this
+    }
+
+    companion object {
+        val EMPTY = Expression("")
+    }
 }

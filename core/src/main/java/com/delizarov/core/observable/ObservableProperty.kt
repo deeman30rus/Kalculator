@@ -1,14 +1,11 @@
 package com.delizarov.core.observable
 
-class ObservableProperty<T>(
+open class ObservableProperty<T>(
     initial: T
 ) : Observable<T>() {
 
-    var item: T = initial
+    var property: T = initial
         set(value) {
-
-            if (field == value) return
-
             field = value
             emit(field)
         }

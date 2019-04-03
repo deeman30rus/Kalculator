@@ -32,7 +32,7 @@ class RpmProcessor : Processor {
                 }
                 is Operator -> {
                     while (op.isNotEmpty() && op.peek().priority >= term.priority) {
-                        reduce(nums, op.peek())
+                        tryReduce(nums, op.peek())
                         op.pop()
                     }
 
@@ -43,7 +43,7 @@ class RpmProcessor : Processor {
         } while (pos < expr.length)
 
         while (op.isNotEmpty()) {
-            reduce(nums, op.peek())
+            tryReduce(nums, op.peek())
             op.pop()
         }
 
@@ -54,6 +54,8 @@ class RpmProcessor : Processor {
     }
 
     companion object {
+
+        private fun tryReduce(nums: Stack<Operand>, operator: Operator) = try { reduce(nums, operator) } catch(ex: Exception) { throw IllegalStateException() }
 
         private fun reduce(nums: Stack<Operand>, operator: Operator) {
 

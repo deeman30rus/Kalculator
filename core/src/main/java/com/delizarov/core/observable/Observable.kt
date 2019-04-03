@@ -2,9 +2,9 @@ package com.delizarov.core.observable
 
 typealias ValueHandler<T> = (T) -> Unit
 
-interface CloseableSubscription {
+interface Cancelable {
 
-    fun close()
+    fun cancel()
 }
 
 interface Observer<T> {
@@ -20,7 +20,7 @@ open class Observable<T> {
         notifyObservers(item)
     }
 
-    fun subscribe(handler: ValueHandler<T>): CloseableSubscription {
+    fun subscribe(handler: ValueHandler<T>): Cancelable {
 
         val subscription = Subscription(handler)
         registerObserver(subscription)
@@ -43,13 +43,13 @@ open class Observable<T> {
 
     private inner class Subscription<T>(
         private val handler: ValueHandler<T>
-    ) : Observer<T>, CloseableSubscription {
+    ) : Observer<T>, Cancelable {
 
         override fun onNext(item: T) {
             handler.invoke(item)
         }
 
-        override fun close() {
+        override fun cancel() {
             removeObserver(this@Subscription)
         }
     }
