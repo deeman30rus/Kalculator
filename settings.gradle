@@ -1,1 +1,1 @@
-include ':app', ':views', ':core'
+include ':app', ':views', ':core', ':fcalc', ':domain'
