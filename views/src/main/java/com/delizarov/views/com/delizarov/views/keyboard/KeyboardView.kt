@@ -2,7 +2,6 @@ package com.delizarov.views.com.delizarov.views.keyboard
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,10 @@ import android.widget.TextView
 import com.delizarov.core.utils.loop2d
 import com.delizarov.views.R
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
-import java.lang.IllegalStateException
+
+internal const val TYPE_NUMERIC = 0
+internal const val TYPE_FUNCTIONAL = 1
+internal const val TYPE_EQUALS = 2
 
 class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     FrameLayout(context, attrs, defStyleAttr) {
@@ -24,6 +26,7 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     private val views = mutableListOf<MutableList<View?>>()
 
     private var layouted = false
+    private var decorators = mutableListOf<Decorator>()
 
     var adapter = Adapter(context, this, GridKeyPattern.EmptyPattern)
         set(value) {
@@ -37,6 +40,9 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     var onKeyPressed: (Key) -> Unit = {}
 
     init {
+
+        addDecorator(BackgroundDecorator())
+
         prepareViews()
     }
 
@@ -69,6 +75,10 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
         super.onLayout(true, left, top, right, bottom)
     }
 
+    fun addDecorator(decorator: Decorator) {
+        decorators.add(decorator)
+    }
+
     private fun prepareViews() {
 
         layouted = false
@@ -80,9 +90,17 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
             views.add(
                 (0 until adapter.maxColumns)
                     .map { c ->
-                        if (adapter.getKeyAt(r, c) != null)
-                            adapter.createKeyView(r, c)
+
+                        val view = if (adapter.getKeyAt(r, c) != null) adapter.createKeyView(r, c)
                         else null
+
+                        for (decorator in decorators) {
+                            if (view == null)
+                                continue
+                            decorator.decorate(view, adapter.getKeyType(r, c))
+                        }
+
+                        view
                     }
                     .toMutableList()
             )
@@ -116,6 +134,13 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
 
         }
 
+        fun getKeyType(row: Int, col: Int): Int {
+
+            val key = pattern[row, col] ?: throw IllegalStateException("Can't get key type of null object")
+
+            return getKeyType(key)
+        }
+
         private fun createKeyView(key: Key): View {
             val inflater = LayoutInflater.from(context)
 
@@ -124,6 +149,14 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
             bindKeyToView(view, key, callback)
 
             return view
+        }
+
+        private fun getKeyType(key: Key) = when {
+            key.isNumeric() -> TYPE_NUMERIC
+            key.isFunctional() -> TYPE_FUNCTIONAL
+            key.isEquals() -> TYPE_EQUALS
+            else -> throw IllegalArgumentException("Seems like you've forgot condition for $key")
+
         }
 
         companion object {
@@ -138,10 +171,15 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
             }
         }
     }
+
+    abstract class Decorator {
+
+        abstract fun decorate(view: View, viewType: Int)
+    }
 }
 
 private fun Key.toResString(context: Context) = context.getString(
-    when(this) {
+    when (this) {
         Key.Key0 -> R.string.key_0
         Key.Key1 -> R.string.key_1
         Key.Key2 -> R.string.key_2
