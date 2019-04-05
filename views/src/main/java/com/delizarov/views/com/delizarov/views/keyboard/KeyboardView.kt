@@ -11,6 +11,7 @@ import android.widget.TextView
 import com.delizarov.core.utils.loop2d
 import com.delizarov.views.R
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
+import kotlin.math.min
 
 internal const val TYPE_NUMERIC = 0
 internal const val TYPE_FUNCTIONAL = 1
@@ -49,30 +50,25 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        if (layouted)
-            return
-
-        layouted = true
-
         if (adapter.itemCount == 0)
             return
 
         val cellWidth = width / adapter.maxColumns
         val cellHeight = height / adapter.maxRows
 
+        val cellSize = (min(cellWidth, cellHeight) * 0.93).toInt()
+
+        val hMargin = (cellWidth - cellSize) / 2
+        val vMargin = (cellHeight - cellSize) / 2
+
         loop2d(adapter.maxRows, adapter.maxColumns) { r, c ->
 
-            if (adapter.getKeyAt(r, c) == null)
-                return@loop2d
-
             with(views[r][c] ?: return@loop2d) {
-                layoutParams = FrameLayout.LayoutParams(cellWidth, cellHeight)
+                layoutParams = FrameLayout.LayoutParams(cellSize, cellSize)
                 foregroundGravity = Gravity.CENTER
-                (layoutParams as FrameLayout.LayoutParams).setMargins(c * cellWidth, r * cellHeight, 0, 0)
+                (layoutParams as FrameLayout.LayoutParams).setMargins(c * cellWidth + hMargin, r * cellHeight + vMargin, 0, 0)
             }
         }
-
-        super.onLayout(true, left, top, right, bottom)
     }
 
     fun addDecorator(decorator: Decorator) {
