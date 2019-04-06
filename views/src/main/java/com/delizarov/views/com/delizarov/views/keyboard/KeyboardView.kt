@@ -1,6 +1,7 @@
 package com.delizarov.views.com.delizarov.views.keyboard
 
 import android.content.Context
+import android.os.Vibrator
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -12,6 +13,8 @@ import com.delizarov.core.utils.loop2d
 import com.delizarov.views.R
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
 import kotlin.math.min
+
+private const val VIBRATION_TIME = 50L // ms
 
 internal const val TYPE_NUMERIC = 0
 internal const val TYPE_FUNCTIONAL = 1
@@ -26,7 +29,8 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
 
     private val views = mutableListOf<MutableList<View?>>()
 
-    private var layouted = false
+    private val keyViewLayoutParams = FrameLayout.LayoutParams(0, 0)
+
     private var decorators = mutableListOf<Decorator>()
 
     var adapter = Adapter(context, this, GridKeyPattern.EmptyPattern)
@@ -58,13 +62,18 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
 
         val cellSize = (min(cellWidth, cellHeight) * 0.93).toInt()
 
+        keyViewLayoutParams.width = cellSize
+        keyViewLayoutParams.height = cellSize
+
         val hMargin = (cellWidth - cellSize) / 2
         val vMargin = (cellHeight - cellSize) / 2
 
         loop2d(adapter.maxRows, adapter.maxColumns) { r, c ->
 
             with(views[r][c] ?: return@loop2d) {
-                layoutParams = FrameLayout.LayoutParams(cellSize, cellSize)
+                layoutParams.width = cellSize
+                layoutParams.height = cellSize
+
                 foregroundGravity = Gravity.CENTER
                 (layoutParams as FrameLayout.LayoutParams).setMargins(c * cellWidth + hMargin, r * cellHeight + vMargin, 0, 0)
             }
@@ -76,8 +85,6 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     }
 
     private fun prepareViews() {
-
-        layouted = false
 
         views.clear()
         removeAllViews()
@@ -159,9 +166,12 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
 
             fun bindKeyToView(view: View, key: Key, callback: (Key) -> Unit) {
 
+                val vibrator = view.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
                 view.findViewById<TextView>(R.id.key).text = key.toResString(view.context)
 
                 view.setOnClickListener {
+                    vibrator.vibrate(VIBRATION_TIME)
                     callback.invoke(key)
                 }
             }
