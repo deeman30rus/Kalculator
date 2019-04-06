@@ -1,8 +1,8 @@
 package com.delizarov.views.com.delizarov.views.keyboard
 
 import android.content.Context
+import android.os.Vibrator
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +12,13 @@ import android.widget.TextView
 import com.delizarov.core.utils.loop2d
 import com.delizarov.views.R
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
-import java.lang.IllegalStateException
+import kotlin.math.min
+
+private const val VIBRATION_TIME = 50L // ms
+
+internal const val TYPE_NUMERIC = 0
+internal const val TYPE_FUNCTIONAL = 1
+internal const val TYPE_EQUALS = 2
 
 class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     FrameLayout(context, attrs, defStyleAttr) {
@@ -23,7 +29,9 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
 
     private val views = mutableListOf<MutableList<View?>>()
 
-    private var layouted = false
+    private val keyViewLayoutParams = FrameLayout.LayoutParams(0, 0)
+
+    private var decorators = mutableListOf<Decorator>()
 
     var adapter = Adapter(context, this, GridKeyPattern.EmptyPattern)
         set(value) {
@@ -37,16 +45,14 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     var onKeyPressed: (Key) -> Unit = {}
 
     init {
+
+        addDecorator(BackgroundDecorator())
+
         prepareViews()
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-
-        if (layouted)
-            return
-
-        layouted = true
 
         if (adapter.itemCount == 0)
             return
@@ -54,24 +60,31 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
         val cellWidth = width / adapter.maxColumns
         val cellHeight = height / adapter.maxRows
 
+        val cellSize = (min(cellWidth, cellHeight) * 0.93).toInt()
+
+        keyViewLayoutParams.width = cellSize
+        keyViewLayoutParams.height = cellSize
+
+        val hMargin = (cellWidth - cellSize) / 2
+        val vMargin = (cellHeight - cellSize) / 2
+
         loop2d(adapter.maxRows, adapter.maxColumns) { r, c ->
 
-            if (adapter.getKeyAt(r, c) == null)
-                return@loop2d
-
             with(views[r][c] ?: return@loop2d) {
-                layoutParams = FrameLayout.LayoutParams(cellWidth, cellHeight)
+                layoutParams.width = cellSize
+                layoutParams.height = cellSize
+
                 foregroundGravity = Gravity.CENTER
-                (layoutParams as FrameLayout.LayoutParams).setMargins(c * cellWidth, r * cellHeight, 0, 0)
+                (layoutParams as FrameLayout.LayoutParams).setMargins(c * cellWidth + hMargin, r * cellHeight + vMargin, 0, 0)
             }
         }
+    }
 
-        super.onLayout(true, left, top, right, bottom)
+    fun addDecorator(decorator: Decorator) {
+        decorators.add(decorator)
     }
 
     private fun prepareViews() {
-
-        layouted = false
 
         views.clear()
         removeAllViews()
@@ -80,9 +93,17 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
             views.add(
                 (0 until adapter.maxColumns)
                     .map { c ->
-                        if (adapter.getKeyAt(r, c) != null)
-                            adapter.createKeyView(r, c)
+
+                        val view = if (adapter.getKeyAt(r, c) != null) adapter.createKeyView(r, c)
                         else null
+
+                        for (decorator in decorators) {
+                            if (view == null)
+                                continue
+                            decorator.decorate(view, adapter.getKeyType(r, c))
+                        }
+
+                        view
                     }
                     .toMutableList()
             )
@@ -116,6 +137,13 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
 
         }
 
+        fun getKeyType(row: Int, col: Int): Int {
+
+            val key = pattern[row, col] ?: throw IllegalStateException("Can't get key type of null object")
+
+            return getKeyType(key)
+        }
+
         private fun createKeyView(key: Key): View {
             val inflater = LayoutInflater.from(context)
 
@@ -126,22 +154,38 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
             return view
         }
 
+        private fun getKeyType(key: Key) = when {
+            key.isNumeric() -> TYPE_NUMERIC
+            key.isFunctional() -> TYPE_FUNCTIONAL
+            key.isEquals() -> TYPE_EQUALS
+            else -> throw IllegalArgumentException("Seems like you've forgot condition for $key")
+
+        }
+
         companion object {
 
             fun bindKeyToView(view: View, key: Key, callback: (Key) -> Unit) {
 
+                val vibrator = view.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
                 view.findViewById<TextView>(R.id.key).text = key.toResString(view.context)
 
                 view.setOnClickListener {
+                    vibrator.vibrate(VIBRATION_TIME)
                     callback.invoke(key)
                 }
             }
         }
     }
+
+    abstract class Decorator {
+
+        abstract fun decorate(view: View, viewType: Int)
+    }
 }
 
 private fun Key.toResString(context: Context) = context.getString(
-    when(this) {
+    when (this) {
         Key.Key0 -> R.string.key_0
         Key.Key1 -> R.string.key_1
         Key.Key2 -> R.string.key_2
