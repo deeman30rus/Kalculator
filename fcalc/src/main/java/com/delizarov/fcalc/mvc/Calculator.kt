@@ -13,7 +13,7 @@ import com.delizarov.views.com.delizarov.views.GridKeyPattern
 import com.delizarov.views.com.delizarov.views.keyboard.Key
 import com.delizarov.views.com.delizarov.views.keyboard.KeyboardView
 
-class CalculatorView(
+class CalculatorMvcView(
     view: View,
     eventListener: EventListener
 ) : MvcView(view, eventListener) {
@@ -47,13 +47,13 @@ class CalculatorView(
 
     class Controller(
         private val context: Context
-    ) : MvcController<CalculatorView>(), EventListener {
+    ) : MvcController<CalculatorMvcView>(), EventListener {
 
         private val vm = ExpressionViewModel(Expression(""))
 
         private var subscription: Cancelable? = null
 
-        override fun attachView(view: CalculatorView) {
+        override fun attachView(view: CalculatorMvcView) {
 
             subscription?.cancel()
             subscription = vm.subscribe(

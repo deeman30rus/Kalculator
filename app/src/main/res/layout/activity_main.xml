@@ -9,7 +9,7 @@
 
     <fragment
             android:id="@+id/calc_fragment"
-            android:name="com.delizarov.fcalc.ui.CalcFragment"
+            android:name="com.delizarov.fcalc.ui.fragments.CalcFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 </merge>
