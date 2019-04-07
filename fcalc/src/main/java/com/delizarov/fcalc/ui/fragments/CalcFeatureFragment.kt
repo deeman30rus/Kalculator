@@ -7,7 +7,7 @@ import com.delizarov.core.mvc.MvcView
 import com.delizarov.fcalc.R
 import com.delizarov.fcalc.mvc.CalculatorMvcView
 
-class CalcFragment : MvcFragment<CalculatorMvcView, CalculatorMvcView.Controller>() {
+class CalcFeatureFragment : MvcFragment<CalculatorMvcView, CalculatorMvcView.Controller>() {
 
     override val layoutResId: Int
         get() = R.layout.fragment_calculator
