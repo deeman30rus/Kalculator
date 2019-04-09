@@ -26,6 +26,11 @@ class Expression(
             isDirty = false
         }
 
+    fun clone() = Expression(expr).apply {
+        isDirty = this@Expression.isDirty
+        value = this@Expression.value
+    }
+
     operator fun plus(str: String): Expression {
         expr += str
 

@@ -83,7 +83,7 @@ class CalculatorMvcView(
 
                 vm.calculateResult()
 
-                repository.add(vm.expression.expr, vm.expression)
+                repository.add(vm.expression.expr, vm.expression.clone())
             }
 
             Key.KeyBackspace -> {

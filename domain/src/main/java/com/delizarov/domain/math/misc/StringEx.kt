@@ -5,7 +5,7 @@ import com.delizarov.domain.math.expression.Expression
 import com.delizarov.domain.math.expression.Operand
 import com.delizarov.domain.math.expression.Term
 
-internal fun String.slice(start: Int, predicate: (Char) -> Boolean): String {
+fun String.slice(start: Int, predicate: (Char) -> Boolean): String {
 
     var p = start
 
@@ -29,12 +29,14 @@ internal fun String.toTerm(): Term = when {
 
 internal fun String.toExpression() = Expression(this)
 
-internal fun Char.isFloatingPoint() = this == '.'
+fun Char.isFloatingPoint() = this == '.'
 
-internal fun Char.isOperator() =
+fun Char.isOperator() =
     this == '+' ||
             this == '-' ||
             this == '*' ||
             this == '/' ||
             this == '%' ||
             this == '^'
+
+fun Char.isEquals() = this == '='
