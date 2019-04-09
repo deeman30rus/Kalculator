@@ -1,6 +1,10 @@
 package com.delizarov.core.mvc
 
-class MvcCombination<TView : MvcView, TController : MvcController<TView>>(
+/**
+ * Class container for controller view pairing. Contains factories for controller and view.
+ * Call [MvcContainer.initialize] when other objects available for mvc feature.
+ * */
+class MvcContainer<TView : MvcView, TController : MvcController<TView>>(
     private val controllerFactory: MvcController.Factory<TController>,
     private val viewFactory: MvcView.Factory<TView>
 ) {
@@ -9,11 +13,9 @@ class MvcCombination<TView : MvcView, TController : MvcController<TView>>(
     private var controller: TController? = null
 
     fun initialize() {
+
         this.view = viewFactory.create()
         controller = controllerFactory.create()
-    }
-
-    fun combine() {
         this.view!!.listener = controller
         controller!!.attachView(this.view!!)
     }

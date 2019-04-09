@@ -10,7 +10,7 @@ abstract class MvcFragment : BaseFragment() {
 
     protected abstract val layoutResId: Int
 
-    protected abstract val mvcCombinations: MutableCollection<MvcCombination<*, *>>
+    protected abstract val mvcContainers: MutableCollection<MvcContainer<*, *>>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(layoutResId, container, false)
@@ -19,17 +19,16 @@ abstract class MvcFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        for (combination in mvcCombinations) {
+        for (combination in mvcContainers) {
 
             combination.initialize()
-            combination.combine()
         }
     }
 
     override fun onStop() {
         super.onStop()
 
-        mvcCombinations.forEach {
+        mvcContainers.forEach {
             it.view!!.onStop()
         }
     }
@@ -37,7 +36,7 @@ abstract class MvcFragment : BaseFragment() {
     override fun onPause() {
         super.onPause()
 
-        mvcCombinations.forEach {
+        mvcContainers.forEach {
             it.view!!.onPause()
         }
     }
@@ -45,7 +44,7 @@ abstract class MvcFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
 
-        mvcCombinations.forEach {
+        mvcContainers.forEach {
             it.view!!.onResume()
         }
     }
@@ -53,7 +52,7 @@ abstract class MvcFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
 
-        mvcCombinations.forEach {
+        mvcContainers.forEach {
             it.view!!.onStart()
         }
     }
