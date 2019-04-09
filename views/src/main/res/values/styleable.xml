@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ExpressionView">
+        <attr name="mode" format="enum">
+            <enum name="expression" value="0"/>
+            <enum name="equation" value="1"/>
+        </attr>
+        <attr name="operatorColor" format="color"/>
+        <attr name="operandColor" format="color"/>
+    </declare-styleable>
+</resources>

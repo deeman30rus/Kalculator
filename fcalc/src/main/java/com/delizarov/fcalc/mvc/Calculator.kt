@@ -8,15 +8,15 @@ import com.delizarov.core.mvc.MvcView
 import com.delizarov.core.observable.Cancelable
 import com.delizarov.domain.math.expression.Expression
 import com.delizarov.fcalc.R
+import com.delizarov.fcalc.repo.HistoryRepository
 import com.delizarov.fcalc.vm.ExpressionViewModel
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
 import com.delizarov.views.com.delizarov.views.keyboard.Key
 import com.delizarov.views.com.delizarov.views.keyboard.KeyboardView
 
-class CalculatorView(
-    view: View,
-    eventListener: EventListener
-) : MvcView(view, eventListener) {
+class CalculatorMvcView(
+    view: View
+) : MvcView(view) {
 
     private val expressionView = view.findViewById<TextView>(R.id.expression_view)
     private val keyboardView = view.findViewById<KeyboardView>(R.id.keyboard)
@@ -27,7 +27,7 @@ class CalculatorView(
         val context = view.context
 
         keyboardView.onKeyPressed = { key ->
-            eventListener.onKeyboardKeyPressed(key)
+            (listener as EventListener).onKeyboardKeyPressed(key)
         }
         keyboardView.adapter = KeyboardView.Adapter(context, keyboardView, GridKeyPattern.DefaultPattern)
     }
@@ -47,13 +47,15 @@ class CalculatorView(
 
     class Controller(
         private val context: Context
-    ) : MvcController<CalculatorView>(), EventListener {
+    ) : MvcController<CalculatorMvcView>(), EventListener {
 
         private val vm = ExpressionViewModel(Expression(""))
 
+        private val repository = HistoryRepository
+
         private var subscription: Cancelable? = null
 
-        override fun attachView(view: CalculatorView) {
+        override fun attachView(view: CalculatorMvcView) {
 
             subscription?.cancel()
             subscription = vm.subscribe(
@@ -81,6 +83,7 @@ class CalculatorView(
 
                 vm.calculateResult()
 
+                repository.add(vm.expression.expr, vm.expression.clone())
             }
 
             Key.KeyBackspace -> {

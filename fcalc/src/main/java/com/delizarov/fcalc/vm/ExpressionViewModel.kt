@@ -7,14 +7,19 @@ import com.delizarov.domain.math.expression.Expression
 
 
 class ExpressionViewModel(
-    private var expression: Expression
+    _expression: Expression
 ) {
+
+    var expression: Expression = _expression
+        private set
 
     val expressionProperty = ObservableProperty(expression.expr)
     val resultProperty = ObservableProperty<Float?>(null)
 
-    fun subscribe(onExpressionChanged: (String) -> Unit,
-                  onResultChanged: (Float?) -> Unit) = Subscription(onExpressionChanged, onResultChanged)
+    fun subscribe(
+        onExpressionChanged: (String) -> Unit,
+        onResultChanged: (Float?) -> Unit
+    ) = Subscription(onExpressionChanged, onResultChanged)
 
     fun isNotEmpty() = !isEmpty()
 

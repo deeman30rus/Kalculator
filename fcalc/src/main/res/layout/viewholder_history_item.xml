@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.delizarov.views.com.delizarov.views.expression.ExpressionView
+        xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/equation_view"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical|end"
+        android:textColor="@color/dusty_grey"
+        android:textSize="19sp"
+        app:mode="equation"
+        app:operatorColor="@color/white"
+        tools:text="8*7=56"
+/>
