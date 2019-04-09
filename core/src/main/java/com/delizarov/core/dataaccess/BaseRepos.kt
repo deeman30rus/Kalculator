@@ -36,7 +36,7 @@ open class ObservableRepository<TKey, TValue>(
     fun subscribe(listener: CrudOperationsListener<TValue>) = Subscription(listener)
 
     override fun add(key: TKey, value: TValue) {
-        super.add(key, value)
+        repo.add(key, value)
 
         for (observer in observers)
             observer.onAdd(value)
@@ -44,7 +44,7 @@ open class ObservableRepository<TKey, TValue>(
 
     override fun update(key: TKey, value: TValue) {
 
-        val old = super.get(key) ?: return
+        val old = repo.get(key) ?: return
 
         super.update(key, value)
 
@@ -56,7 +56,7 @@ open class ObservableRepository<TKey, TValue>(
 
         val deleted = repo.get(key) ?: return
 
-        super.delete(key)
+        repo.delete(key)
 
         for (observer in observers)
             observer.onDelete(deleted)

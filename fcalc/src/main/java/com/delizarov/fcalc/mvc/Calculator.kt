@@ -8,6 +8,7 @@ import com.delizarov.core.mvc.MvcView
 import com.delizarov.core.observable.Cancelable
 import com.delizarov.domain.math.expression.Expression
 import com.delizarov.fcalc.R
+import com.delizarov.fcalc.repo.HistoryRepository
 import com.delizarov.fcalc.vm.ExpressionViewModel
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
 import com.delizarov.views.com.delizarov.views.keyboard.Key
@@ -50,6 +51,8 @@ class CalculatorMvcView(
 
         private val vm = ExpressionViewModel(Expression(""))
 
+        private val repository = HistoryRepository
+
         private var subscription: Cancelable? = null
 
         override fun attachView(view: CalculatorMvcView) {
@@ -80,6 +83,7 @@ class CalculatorMvcView(
 
                 vm.calculateResult()
 
+                repository.add(vm.expression.expr, vm.expression)
             }
 
             Key.KeyBackspace -> {
