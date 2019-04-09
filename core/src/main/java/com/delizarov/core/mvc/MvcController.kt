@@ -1,6 +1,6 @@
 package com.delizarov.core.mvc
 
-abstract class MvcController<in TView : MvcView> {
+abstract class MvcController<in TView : MvcView> : MvcView.EventListener {
 
     abstract fun attachView(view: TView)
 

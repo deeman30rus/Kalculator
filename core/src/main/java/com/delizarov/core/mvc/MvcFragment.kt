@@ -6,14 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import com.delizarov.core.android.fragment.BaseFragment
 
-abstract class MvcFragment<TView: MvcView, TController : MvcController<TView>> : BaseFragment() {
+abstract class MvcFragment : BaseFragment() {
 
     protected abstract val layoutResId: Int
 
-    protected lateinit var mvcViewFactory: MvcView.Factory<TView>
-    protected lateinit var mvcControllerFactory: MvcController.Factory<TController>
-    protected lateinit var mvcView: TView
-    protected val mvcController: TController by lazy { mvcControllerFactory.create() }
+    protected abstract val mvcCombinations: MutableCollection<MvcCombination<*, *>>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(layoutResId, container, false)
@@ -22,33 +19,42 @@ abstract class MvcFragment<TView: MvcView, TController : MvcController<TView>> :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initMvcViewFactory()
-        initMvcControllerFactory()
+        for (combination in mvcCombinations) {
 
-        mvcView = mvcViewFactory.create()
-        mvcController.attachView(mvcView)
+            combination.initialize()
+            combination.combine()
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        mvcView.onStop()
+
+        mvcCombinations.forEach {
+            it.view!!.onStop()
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        mvcView.onPause()
+
+        mvcCombinations.forEach {
+            it.view!!.onPause()
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        mvcView.onResume()
+
+        mvcCombinations.forEach {
+            it.view!!.onResume()
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        mvcView.onStart()
-    }
 
-    protected abstract fun initMvcViewFactory()
-    protected abstract fun initMvcControllerFactory()
+        mvcCombinations.forEach {
+            it.view!!.onStart()
+        }
+    }
 }

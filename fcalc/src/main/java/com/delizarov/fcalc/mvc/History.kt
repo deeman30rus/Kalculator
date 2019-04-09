@@ -11,9 +11,8 @@ import com.delizarov.fcalc.repo.HistoryRepository
 import com.delizarov.fcalc.ui.views.HistoryView
 
 class HistoryMvcView(
-    root: View,
-    eventListener: EventListener
-) : MvcView(root, eventListener), ObservableRepository.CrudOperationsListener<Expression> {
+    root: View
+) : MvcView(root), ObservableRepository.CrudOperationsListener<Expression> {
 
     private val historyView = root.findViewById<HistoryView>(R.id.history_view)
 

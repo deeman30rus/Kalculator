@@ -14,9 +14,8 @@ import com.delizarov.views.com.delizarov.views.keyboard.Key
 import com.delizarov.views.com.delizarov.views.keyboard.KeyboardView
 
 class CalculatorMvcView(
-    view: View,
-    eventListener: EventListener
-) : MvcView(view, eventListener) {
+    view: View
+) : MvcView(view) {
 
     private val expressionView = view.findViewById<TextView>(R.id.expression_view)
     private val keyboardView = view.findViewById<KeyboardView>(R.id.keyboard)
@@ -27,7 +26,7 @@ class CalculatorMvcView(
         val context = view.context
 
         keyboardView.onKeyPressed = { key ->
-            eventListener.onKeyboardKeyPressed(key)
+            (listener as EventListener).onKeyboardKeyPressed(key)
         }
         keyboardView.adapter = KeyboardView.Adapter(context, keyboardView, GridKeyPattern.DefaultPattern)
     }

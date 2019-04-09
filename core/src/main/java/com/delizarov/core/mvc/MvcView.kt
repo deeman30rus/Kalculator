@@ -3,16 +3,17 @@ package com.delizarov.core.mvc
 import android.view.View
 
 abstract class MvcView(
-    protected val root: View,
-    protected val listener: EventListener
+    protected val root: View
 ) {
-    fun onStart() = listener.onStart()
+    var listener: EventListener? = null
 
-    fun onResume() = listener.onResume()
+    fun onStart() = listener?.onStart()
 
-    fun onPause() = listener.onPause()
+    fun onResume() = listener?.onResume()
 
-    fun onStop() = listener.onStop()
+    fun onPause() = listener?.onPause()
+
+    fun onStop() = listener?.onStop()
 
     interface EventListener {
 
