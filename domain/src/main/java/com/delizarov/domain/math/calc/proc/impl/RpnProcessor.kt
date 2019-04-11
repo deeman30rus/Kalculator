@@ -59,8 +59,8 @@ class RpmProcessor : Processor {
 
         private fun reduce(nums: Stack<Operand>, operator: Operator) {
 
-            val l = nums.pop()
             val r = nums.pop()
+            val l = nums.pop()
 
             when (operator) {
                 is BinaryOperator -> nums.push(operator.process(l, r))
