@@ -27,8 +27,6 @@ internal fun String.toTerm(): Term = when {
     else -> throw IllegalArgumentException("unknown term $this")
 }
 
-internal fun String.toExpression() = Expression(this)
-
 fun Char.isFloatingPoint() = this == '.'
 
 fun Char.isOperator() =

@@ -11,6 +11,6 @@ object RpnCalculator : Calculator {
 
         val processor: Processor = RpmProcessor()
 
-        expr.value = processor.process(expr.expr)
+//        expr.value = processor.process(expr.expr)
     }
 }

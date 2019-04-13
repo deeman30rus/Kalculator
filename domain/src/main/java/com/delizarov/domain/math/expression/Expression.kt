@@ -1,17 +1,13 @@
 package com.delizarov.domain.math.expression
 
 class Expression(
-    expr: String
+    terms: Collection<Term>
 ) {
+
+    private val terms: Collection<Term> = ArrayList(terms)
 
     var isDirty = true
         private set
-
-    var expr: String = expr
-        set(value) {
-            isDirty = field != value
-            field = value
-        }
 
     var value: Float = Float.NEGATIVE_INFINITY
         get() {
@@ -26,18 +22,20 @@ class Expression(
             isDirty = false
         }
 
-    fun clone() = Expression(expr).apply {
+    fun clone() = Expression(terms).apply {
         isDirty = this@Expression.isDirty
         value = this@Expression.value
     }
 
-    operator fun plus(str: String): Expression {
-        expr += str
-
-        return this
+    override fun toString() = terms.joinToString {
+        when (it) {
+            is Operand -> it.value.toString()
+            is Operator -> it.toString()
+            else -> ""
+        }
     }
 
     companion object {
-        val EMPTY = Expression("")
+        val EMPTY = Expression(emptyList())
     }
 }

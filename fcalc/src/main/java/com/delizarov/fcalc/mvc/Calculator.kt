@@ -49,7 +49,7 @@ class CalculatorMvcView(
         private val context: Context
     ) : MvcController<CalculatorMvcView>(), EventListener {
 
-        private val vm = ExpressionViewModel(Expression(""))
+        private val vm = ExpressionViewModel(Expression())
 
         private val repository = HistoryRepository
 
@@ -83,7 +83,7 @@ class CalculatorMvcView(
 
                 vm.calculateResult()
 
-                repository.add(vm.expression.expr, vm.expression.clone())
+                repository.add(vm.expression.toString(), vm.expression.clone())
             }
 
             Key.KeyBackspace -> {
