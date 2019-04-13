@@ -4,6 +4,7 @@ import com.delizarov.domain.math.expression.BinaryOperator
 import com.delizarov.domain.math.expression.Expression
 import com.delizarov.domain.math.expression.Operand
 import com.delizarov.domain.math.expression.Term
+import com.delizarov.domain.parser.impl.StringTermParser
 
 fun String.slice(start: Int, predicate: (Char) -> Boolean): String {
 
@@ -26,6 +27,8 @@ internal fun String.toTerm(): Term = when {
 
     else -> throw IllegalArgumentException("unknown term $this")
 }
+
+fun String.toExpression() = Expression(StringTermParser().parse(this))
 
 fun Char.isFloatingPoint() = this == '.'
 

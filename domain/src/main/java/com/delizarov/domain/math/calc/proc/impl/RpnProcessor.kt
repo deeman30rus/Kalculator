@@ -4,28 +4,17 @@ import com.delizarov.domain.math.calc.proc.Processor
 import com.delizarov.domain.math.expression.BinaryOperator
 import com.delizarov.domain.math.expression.Operand
 import com.delizarov.domain.math.expression.Operator
-import com.delizarov.domain.math.misc.isFloatingPoint
-import com.delizarov.domain.math.misc.isOperator
-import com.delizarov.domain.math.misc.slice
-import com.delizarov.domain.math.misc.toTerm
+import com.delizarov.domain.math.expression.Term
 import java.util.*
 
-class RpmProcessor : Processor {
+class RpmProcessor : Processor<Collection<Term>> {
 
     private val op = Stack<Operator>()
     private val nums = Stack<Operand>()
 
-    override fun process(expr: String): Float {
+    override fun process(expr: Collection<Term>): Float {
 
-        var pos = 0
-
-        do {
-
-            val sTerm = readTerm(expr, pos)
-            pos += sTerm.length
-
-            val term = sTerm.toTerm()
-
+        for (term in expr) {
             when (term) {
                 is Operand -> {
                     nums.push(term)
@@ -39,8 +28,7 @@ class RpmProcessor : Processor {
                     op.push(term)
                 }
             }
-
-        } while (pos < expr.length)
+        }
 
         while (op.isNotEmpty()) {
             tryReduce(nums, op.peek())
@@ -69,16 +57,3 @@ class RpmProcessor : Processor {
         }
     }
 }
-
-private fun readTerm(expr: String, pos: Int) = when {
-
-    expr[pos].isDigit() -> readNumber(expr, pos)
-
-    expr[pos].isOperator() -> readOperator(expr, pos)
-
-    else -> throw IllegalArgumentException("can't parse symbol ${expr[pos]} at $pos")
-}
-
-private fun readNumber(s: String, p: Int) = s.slice(p) { c -> c.isDigit() || c.isFloatingPoint() }
-
-private fun readOperator(s: String, p: Int) = s.slice(p) { c -> c.isOperator() }

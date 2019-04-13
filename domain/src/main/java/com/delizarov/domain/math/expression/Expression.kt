@@ -3,8 +3,7 @@ package com.delizarov.domain.math.expression
 class Expression(
     terms: Collection<Term>
 ) {
-
-    private val terms: Collection<Term> = ArrayList(terms)
+    val terms: Collection<Term> = ArrayList(terms)
 
     var isDirty = true
         private set

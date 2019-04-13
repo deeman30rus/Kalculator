@@ -1,6 +1,6 @@
 package com.delizarov.domain.math.calc.proc
 
-interface Processor {
+interface Processor<in T> {
 
-    fun process(expr: String): Float
+    fun process(expr: T): Float
 }
