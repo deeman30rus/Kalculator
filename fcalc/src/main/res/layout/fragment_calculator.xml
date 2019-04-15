@@ -53,7 +53,7 @@
             android:textColor="@color/dusty_grey"
             app:mode="expression"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/guideline"
+            app:layout_constraintBottom_toTopOf="@id/result_view"
             tools:text="2+2"
     />
     <TextView
@@ -64,9 +64,9 @@
             android:textStyle="bold"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:textColor="@color/dusty_grey"
+            android:textColor="@color/persimmon"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/expression_view"
+            app:layout_constraintBottom_toTopOf="@id/guideline"
             tools:text="4"
     />
 </android.support.constraint.ConstraintLayout>

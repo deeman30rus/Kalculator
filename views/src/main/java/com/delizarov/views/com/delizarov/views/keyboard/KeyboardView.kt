@@ -155,7 +155,7 @@ class KeyboardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
         }
 
         private fun getKeyType(key: Key) = when {
-            key.isNumeric() -> TYPE_NUMERIC
+            key.isNumberPart() -> TYPE_NUMERIC
             key.isFunctional() -> TYPE_FUNCTIONAL
             key.isEquals() -> TYPE_EQUALS
             else -> throw IllegalArgumentException("Seems like you've forgot condition for $key")

@@ -7,5 +7,6 @@
         </attr>
         <attr name="operatorColor" format="color"/>
         <attr name="operandColor" format="color"/>
+        <attr name="valueColor" format="color"/>
     </declare-styleable>
 </resources>

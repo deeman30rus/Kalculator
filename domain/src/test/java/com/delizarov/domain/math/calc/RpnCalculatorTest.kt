@@ -1,10 +1,9 @@
-package com.delizarov.domain.calc
+package com.delizarov.domain.math.calc
 
-import com.delizarov.domain.math.calc.Calculator
 import com.delizarov.domain.math.calc.impl.RpnCalculator
 import com.delizarov.domain.math.expression.Expression
 import com.delizarov.domain.math.misc.toExpression
-import junit.framework.Assert.assertEquals
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 
 
@@ -98,7 +97,7 @@ class RpnCalculatorTest {
 
                 calculator.calculate(expression)
 
-                assertEquals("assertion failed for ${expression.expr}", result, expression.value)
+                assertEquals("assertion failed for $expression", result, expression.value)
 
             }
         }

@@ -15,6 +15,12 @@ abstract class UnaryOperator : Operator() {
 
         override fun process(operand: Operand) =
             Operand(-operand.value)
+
+        override fun equals(other: Any?): Boolean {
+            return other is Negation
+        }
+
+        override fun hashCode() = Negation::class.hashCode()
     }
 }
 
@@ -28,6 +34,12 @@ abstract class BinaryOperator : Operator() {
 
         override fun process(leftOperand: Operand, rightOperand: Operand) =
             Operand(leftOperand.value + rightOperand.value)
+
+        override fun toString() = "+"
+
+        override fun equals(other: Any?) = other is Addition
+
+        override fun hashCode() = Addition::class.hashCode()
     }
 
     object Subtraction : BinaryOperator() {
@@ -36,6 +48,12 @@ abstract class BinaryOperator : Operator() {
 
         override fun process(leftOperand: Operand, rightOperand: Operand) =
             Operand(leftOperand.value - rightOperand.value)
+
+        override fun toString() = "-"
+
+        override fun equals(other: Any?) = other is Subtraction
+
+        override fun hashCode() = Subtraction::class.hashCode()
     }
 
     object Multiplication : BinaryOperator() {
@@ -44,6 +62,12 @@ abstract class BinaryOperator : Operator() {
 
         override fun process(leftOperand: Operand, rightOperand: Operand) =
             Operand(leftOperand.value * rightOperand.value)
+
+        override fun toString() = "*"
+
+        override fun equals(other: Any?) = other is Multiplication
+
+        override fun hashCode() = Multiplication::class.hashCode()
     }
 
     object Division : BinaryOperator() {
@@ -52,6 +76,12 @@ abstract class BinaryOperator : Operator() {
 
         override fun process(leftOperand: Operand, rightOperand: Operand) =
             Operand(leftOperand.value / rightOperand.value)
+
+        override fun toString() = "/"
+
+        override fun equals(other: Any?) = other is Division
+
+        override fun hashCode() = Division::class.hashCode()
     }
 
     object Reminder : BinaryOperator() {
@@ -60,5 +90,11 @@ abstract class BinaryOperator : Operator() {
 
         override fun process(leftOperand: Operand, rightOperand: Operand) =
             Operand(leftOperand.value % rightOperand.value)
+
+        override fun toString() = "%"
+
+        override fun equals(other: Any?) = other is Reminder
+
+        override fun hashCode() = Reminder::class.hashCode()
     }
 }

@@ -1,43 +1,20 @@
 package com.delizarov.domain.math.expression
 
 class Expression(
-    expr: String
+    terms: Collection<Term>
 ) {
+    val terms: Collection<Term> = ArrayList(terms)
 
-    var isDirty = true
-        private set
+    var value: Float? = null
 
-    var expr: String = expr
-        set(value) {
-            isDirty = field != value
-            field = value
-        }
+    override fun toString() = terms.joinToString("") { it.toString() }
 
-    var value: Float = Float.NEGATIVE_INFINITY
-        get() {
-
-            if (isDirty)
-                throw IllegalStateException("Expression changed but not calculated")
-
-            return field
-        }
-        set(value) {
-            field = value
-            isDirty = false
-        }
-
-    fun clone() = Expression(expr).apply {
-        isDirty = this@Expression.isDirty
+    fun clone() = Expression(terms).apply {
         value = this@Expression.value
     }
 
-    operator fun plus(str: String): Expression {
-        expr += str
-
-        return this
-    }
 
     companion object {
-        val EMPTY = Expression("")
+        val EMPTY = Expression(emptyList())
     }
 }
