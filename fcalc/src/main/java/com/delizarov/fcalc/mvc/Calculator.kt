@@ -1,6 +1,5 @@
 package com.delizarov.fcalc.mvc
 
-import android.content.Context
 import android.view.View
 import android.widget.TextView
 import com.delizarov.core.mvc.MvcController
@@ -13,6 +12,7 @@ import com.delizarov.fcalc.R
 import com.delizarov.fcalc.repo.HistoryRepository
 import com.delizarov.fcalc.vm.ExpressionViewModel
 import com.delizarov.views.com.delizarov.views.GridKeyPattern
+import com.delizarov.views.com.delizarov.views.expression.ExpressionView
 import com.delizarov.views.com.delizarov.views.keyboard.Key
 import com.delizarov.views.com.delizarov.views.keyboard.KeyboardView
 
@@ -20,7 +20,7 @@ class CalculatorMvcView(
     view: View
 ) : MvcView(view) {
 
-    private val expressionView = view.findViewById<TextView>(R.id.expression_view)
+    private val expressionView = view.findViewById<ExpressionView>(R.id.expression_view)
     private val keyboardView = view.findViewById<KeyboardView>(R.id.keyboard)
     private val resultView = view.findViewById<TextView>(R.id.result_view)
 
@@ -34,8 +34,8 @@ class CalculatorMvcView(
         keyboardView.adapter = KeyboardView.Adapter(context, keyboardView, GridKeyPattern.DefaultPattern)
     }
 
-    fun showExpression(expression: String) {
-        expressionView.text = expression
+    fun showExpression(expression: Expression) {
+        expressionView.expression = expression
     }
 
     fun showResult(result: Float?) {

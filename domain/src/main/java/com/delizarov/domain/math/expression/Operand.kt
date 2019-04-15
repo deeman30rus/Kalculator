@@ -1,5 +1,7 @@
 package com.delizarov.domain.math.expression
 
+import java.text.DecimalFormat
+
 class Operand(
     val value: Float
 ) : Term() {
@@ -8,7 +10,12 @@ class Operand(
 
     override fun hashCode() = value.hashCode()
 
-    override fun toString() = value.toString()
+    override fun toString(): String = DecimalFormat.format(value)
+
+    companion object {
+
+        private val DecimalFormat = DecimalFormat("0.###############")
+    }
 
 }
 

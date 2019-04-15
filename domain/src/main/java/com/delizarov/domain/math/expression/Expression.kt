@@ -1,7 +1,5 @@
 package com.delizarov.domain.math.expression
 
-import java.text.DecimalFormat
-
 class Expression(
     terms: Collection<Term>
 ) {
@@ -9,15 +7,7 @@ class Expression(
 
     var value: Float? = null
 
-    override fun toString() = terms.joinToString("") {
-
-        val decimalFormat = DecimalFormat("0.###############")
-        when (it) {
-            is Operand -> decimalFormat.format(it.value)
-            is Operator -> it.toString()
-            else -> ""
-        }
-    }
+    override fun toString() = terms.joinToString("") { it.toString() }
 
     fun clone() = Expression(terms).apply {
         value = this@Expression.value

@@ -10,5 +10,6 @@
         android:textSize="19sp"
         app:mode="equation"
         app:operatorColor="@color/white"
+        app:valueColor="@color/persimmon"
         tools:text="8*7=56"
 />

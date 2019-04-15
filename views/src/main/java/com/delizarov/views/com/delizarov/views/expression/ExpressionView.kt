@@ -3,22 +3,17 @@ package com.delizarov.views.com.delizarov.views.expression
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.support.annotation.ColorRes
 import android.support.v4.content.ContextCompat
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextUtils
+import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.widget.TextView
 import com.delizarov.domain.math.expression.Expression
-import com.delizarov.domain.math.misc.isEquals
-import com.delizarov.domain.math.misc.isFloatingPoint
-import com.delizarov.domain.math.misc.isOperator
-import com.delizarov.domain.math.misc.slice
+import com.delizarov.domain.math.expression.Operand
+import com.delizarov.domain.math.expression.Operator
 import com.delizarov.views.R
-import java.lang.IllegalStateException
+import java.text.DecimalFormat
 
 
 class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : TextView(ctx, attrs, defStyleAttr) {
@@ -69,6 +64,17 @@ class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : Te
         }
         get() = _operandColor
 
+    private var _valueColor: Int = Color.WHITE
+    var valueColor: Int
+        set(value) {
+
+            if (_valueColor == value) return
+
+            _valueColor = value
+            render()
+        }
+        get() = _valueColor
+
 
     init {
 
@@ -80,8 +86,16 @@ class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : Te
 
             try {
                 _mode = getInteger(R.styleable.ExpressionView_mode, Mode.Expression.ordinal).toMode()
-                _operatorColor = getColor(R.styleable.ExpressionView_operatorColor, ContextCompat.getColor(context, R.color.dusty_grey))
-                _operandColor = getColor(R.styleable.ExpressionView_operandColor, ContextCompat.getColor(context, R.color.dusty_grey))
+                _operatorColor = getColor(
+                    R.styleable.ExpressionView_operatorColor,
+                    ContextCompat.getColor(context, R.color.dusty_grey)
+                )
+                _operandColor = getColor(
+                    R.styleable.ExpressionView_operandColor,
+                    ContextCompat.getColor(context, R.color.dusty_grey)
+                )
+                _valueColor =
+                    getColor(R.styleable.ExpressionView_valueColor, ContextCompat.getColor(context, R.color.dusty_grey))
 
             } finally {
                 recycle()
@@ -95,22 +109,58 @@ class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : Te
 
         if (expression == Expression.EMPTY) return
 
-        val expr = expression.toString()
+        val span = SpannableStringBuilder()
+        var p = 0
 
-        val span = if (mode == Mode.Expression)
-            SpannableString(expr)
-        else SpannableString("$expression=${expression.value}")
+        for (term in expression.terms) {
 
-        for (i in 0 until span.length) {
-            if (span[i].isOperator() || span[i].isEquals()) {
-                span.setSpan(StyleSpan(Typeface.BOLD), i, i + 1, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-                span.setSpan(
-                    ForegroundColorSpan(operatorColor),
-                    i,
-                    i + 1,
-                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-                )
+            val str = term.toString()
+
+            when (term) {
+                is Operand -> {
+                    span.append(str)
+
+                    p += str.length
+                }
+                is Operator -> {
+
+                    val s = SpannableString(" $str ")
+                    span.append(s)
+
+                    span.setSpan(StyleSpan(Typeface.BOLD), p, p + s.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                    span.setSpan(
+                        ForegroundColorSpan(operatorColor),
+                        p,
+                        p + s.length,
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                    )
+
+                    p += s.length
+                }
             }
+        }
+
+        if (mode == Mode.Equation) {
+            // adding equals
+            span.append(" = ")
+            span.setSpan(StyleSpan(Typeface.BOLD), p, p + 3, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            span.setSpan(
+                ForegroundColorSpan(operatorColor),
+                p,
+                p + 3,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            )
+            p += 3
+
+            // adding value
+            val value = DecimalFormat("0.##############").format(expression.value)
+            span.append(value)
+            span.setSpan(
+                ForegroundColorSpan(valueColor),
+                p,
+                p + value.length,
+                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            )
         }
 
         text = span

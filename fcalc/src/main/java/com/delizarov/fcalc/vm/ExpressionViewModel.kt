@@ -18,7 +18,7 @@ class ExpressionViewModel {
             updateObservableProperties()
         }
 
-    val expressionProperty = ObservableProperty("")
+    val expressionProperty = ObservableProperty(Expression.EMPTY)
     val resultProperty = ObservableProperty<Float?>(null)
 
     fun calculateResult() {
@@ -30,18 +30,18 @@ class ExpressionViewModel {
     }
 
     fun subscribe(
-        onExpressionChanged: (String) -> Unit,
+        onExpressionChanged: (Expression) -> Unit,
         onResultChanged: (Float?) -> Unit
     ) = Subscription(onExpressionChanged, onResultChanged)
 
     private fun updateObservableProperties() {
 
-        expressionProperty.property = expression.toString()
+        expressionProperty.property = expression
         resultProperty.property = expression.value
     }
 
     inner class Subscription(
-        private var onExpressionChanged: (String) -> Unit,
+        private var onExpressionChanged: (Expression) -> Unit,
         private var onResultChanged: (Float?) -> Unit
     ) : Cancelable {
 
