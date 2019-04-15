@@ -95,9 +95,11 @@ class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : Te
 
         if (expression == Expression.EMPTY) return
 
-        val raw = if (mode == Mode.Expression) expression.expr else "${expression.expr}=${expression.value}"
+        val expr = expression.toString()
 
-        val span = SpannableString(splitToTerms(raw).joinToString(" "))
+        val span = if (mode == Mode.Expression)
+            SpannableString(expr)
+        else SpannableString("$expression=${expression.value}")
 
         for (i in 0 until span.length) {
             if (span[i].isOperator() || span[i].isEquals()) {
@@ -117,33 +119,6 @@ class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : Te
     enum class Mode {
         Expression,
         Equation
-    }
-
-    private companion object {
-
-        fun splitToTerms(str: String): List<String> {
-
-            val terms = mutableListOf<String>()
-
-            var pos = 0
-
-            while (pos < str.length) {
-
-                val term = readTerm(str, pos)
-                terms.add(term)
-
-                pos += term.length
-            }
-
-            return terms
-        }
-
-        // TODO: remove duplicating logic
-        fun readTerm(str: String, pos: Int) = when {
-            str[pos].isDigit() || str[pos].isFloatingPoint() -> str.slice(pos) { c -> c.isFloatingPoint() || c.isDigit() }
-            str[pos].isOperator() || str[pos].isEquals() -> str[pos].toString()
-            else -> throw IllegalStateException("Couldn't parse ${str[pos]}")
-        }
     }
 }
 

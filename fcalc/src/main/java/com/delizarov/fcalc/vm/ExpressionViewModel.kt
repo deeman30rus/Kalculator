@@ -6,34 +6,20 @@ import com.delizarov.domain.math.calc.impl.RpnCalculator
 import com.delizarov.domain.math.expression.Expression
 
 
-class ExpressionViewModel(
-    _expression: Expression
-) {
+class ExpressionViewModel {
 
-    var expression: Expression = _expression
-        private set
+    var expression = Expression.EMPTY
+        set(value) {
 
-    val expressionProperty = ObservableProperty(expression.expr)
+            if (field == value) return
+
+            field = value
+
+            updateObservableProperties()
+        }
+
+    val expressionProperty = ObservableProperty("")
     val resultProperty = ObservableProperty<Float?>(null)
-
-    fun subscribe(
-        onExpressionChanged: (String) -> Unit,
-        onResultChanged: (Float?) -> Unit
-    ) = Subscription(onExpressionChanged, onResultChanged)
-
-    fun isNotEmpty() = !isEmpty()
-
-    fun clearExpression() {
-        expression = Expression.EMPTY
-
-        updateObservableProperties()
-    }
-
-    fun deleteLastChar() {
-
-        expression.expr.dropLast(1)
-        updateObservableProperties()
-    }
 
     fun calculateResult() {
         RpnCalculator.calculate(expression)
@@ -43,20 +29,15 @@ class ExpressionViewModel(
         updateObservableProperties()
     }
 
-    fun addStringToExpression(str: String) {
-        expression.expr += str
-
-        updateObservableProperties()
-    }
-
-    private fun isEmpty() = expression.expr.isEmpty()
+    fun subscribe(
+        onExpressionChanged: (String) -> Unit,
+        onResultChanged: (Float?) -> Unit
+    ) = Subscription(onExpressionChanged, onResultChanged)
 
     private fun updateObservableProperties() {
 
-        expressionProperty.property = expression.expr
-
-        if (!expression.isDirty)
-            resultProperty.property = expression.value
+        expressionProperty.property = expression.toString()
+        resultProperty.property = expression.value
     }
 
     inner class Subscription(

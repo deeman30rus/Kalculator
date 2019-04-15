@@ -6,6 +6,7 @@ import com.delizarov.core.mvc.MvcController
 import com.delizarov.core.mvc.MvcFragment
 import com.delizarov.core.mvc.MvcView
 import com.delizarov.fcalc.R
+import com.delizarov.fcalc.domain.impl.KeyInputInteractor
 import com.delizarov.fcalc.mvc.CalculatorMvcView
 import com.delizarov.fcalc.mvc.HistoryMvcView
 
@@ -15,7 +16,7 @@ class CalcFeatureFragment : MvcFragment() {
         MvcContainer(
             object : MvcController.Factory<CalculatorMvcView.Controller>() {
 
-                override fun create() = CalculatorMvcView.Controller(context!!)
+                override fun create() = CalculatorMvcView.Controller(KeyInputInteractor())
             },
             object : MvcView.Factory<CalculatorMvcView>() {
 

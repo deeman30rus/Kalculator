@@ -1,38 +1,28 @@
 package com.delizarov.domain.math.expression
 
+import java.text.DecimalFormat
+
 class Expression(
     terms: Collection<Term>
 ) {
     val terms: Collection<Term> = ArrayList(terms)
 
-    var isDirty = true
-        private set
+    var value: Float? = null
 
-    var value: Float = Float.NEGATIVE_INFINITY
-        get() {
+    override fun toString() = terms.joinToString("") {
 
-            if (isDirty)
-                throw IllegalStateException("Expression changed but not calculated")
-
-            return field
-        }
-        set(value) {
-            field = value
-            isDirty = false
-        }
-
-    fun clone() = Expression(terms).apply {
-        isDirty = this@Expression.isDirty
-        value = this@Expression.value
-    }
-
-    override fun toString() = terms.joinToString {
+        val decimalFormat = DecimalFormat("0.###############")
         when (it) {
-            is Operand -> it.value.toString()
+            is Operand -> decimalFormat.format(it.value)
             is Operator -> it.toString()
             else -> ""
         }
     }
+
+    fun clone() = Expression(terms).apply {
+        value = this@Expression.value
+    }
+
 
     companion object {
         val EMPTY = Expression(emptyList())
