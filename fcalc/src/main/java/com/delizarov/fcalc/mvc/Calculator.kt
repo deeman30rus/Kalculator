@@ -15,6 +15,7 @@ import com.delizarov.views.com.delizarov.views.GridKeyPattern
 import com.delizarov.views.com.delizarov.views.expression.ExpressionView
 import com.delizarov.views.com.delizarov.views.keyboard.Key
 import com.delizarov.views.com.delizarov.views.keyboard.KeyboardView
+import java.lang.IllegalStateException
 
 class CalculatorMvcView(
     view: View
@@ -73,8 +74,12 @@ class CalculatorMvcView(
         override fun onKeyboardKeyPressed(key: Key) {
 
             if (key == Key.KeyEquals) {
-                vm.calculateResult()
-                repository.add(vm.expression.toString(), vm.expression.clone())
+                try {
+                    vm.calculateResult()
+                    repository.add(vm.expression.toString(), vm.expression.clone())
+                } catch (ex: IllegalStateException) {
+                    // just ignore, could be uncompleted input
+                }
             } else {
                 inputInteractor.process(key)
                 vm.expression = inputInteractor.state.toExpression()
