@@ -15,7 +15,7 @@ import com.delizarov.views.com.delizarov.views.expression.ExpressionView
 
 
 class HistoryView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) :
-        RecyclerView(ctx, attrs, defStyleAttr) {
+    RecyclerView(ctx, attrs, defStyleAttr) {
 
     constructor(ctx: Context) : this(ctx, null)
 
@@ -23,10 +23,27 @@ class HistoryView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) :
 
     init {
 
-        layoutManager = LinearLayoutManager(ctx)
-        (layoutManager as LinearLayoutManager).reverseLayout = true
+        layoutManager = object : LinearLayoutManager(ctx) {
+
+            override fun canScrollVertically(): Boolean {
+                return false
+            }
+        }
+
+        with(layoutManager as LinearLayoutManager) {
+            stackFromEnd = true
+        }
 
         adapter = HistoryAdapter(ctx, this)
+        adapter?.registerAdapterDataObserver(object : AdapterDataObserver() {
+
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+
+                scrollToPosition(adapter!!.itemCount - 1)
+            }
+        })
+
 
         val divider = DividerItemDecoration(context, (layoutManager as LinearLayoutManager).orientation)
         divider.setDrawable(ContextCompat.getDrawable(context, R.drawable.divider_history)!!)
@@ -34,6 +51,8 @@ class HistoryView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     }
 
     fun addItem(expr: Expression) = (adapter as HistoryAdapter).addItem(expr)
+
+
 }
 
 class HistoryAdapter(
