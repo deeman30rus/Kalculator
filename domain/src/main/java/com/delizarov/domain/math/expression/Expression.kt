@@ -3,7 +3,7 @@ package com.delizarov.domain.math.expression
 class Expression(
     terms: Collection<Term>
 ) {
-    val terms: Collection<Term> = ArrayList(terms)
+    val terms: List<Term> = ArrayList(terms)
 
     var value: Float? = null
 

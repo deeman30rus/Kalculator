@@ -49,11 +49,11 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp"
-            android:textSize="28sp"
             android:textColor="@color/dusty_grey"
             app:mode="expression"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/result_view"
+            app:textSize="28sp"
             tools:text="2+2"
     />
     <TextView

@@ -4,19 +4,23 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
-import android.text.*
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
 import android.util.AttributeSet
+import android.util.TypedValue
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.delizarov.domain.math.expression.Expression
 import com.delizarov.domain.math.expression.Operand
 import com.delizarov.domain.math.expression.Operator
+import com.delizarov.domain.math.expression.Term
 import com.delizarov.views.R
-import java.text.DecimalFormat
+import java.lang.IllegalArgumentException
 
 
-class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : TextView(ctx, attrs, defStyleAttr) {
+private const val DURATION = 200L // animation duration ms
+private const val TEXT_VIEW_LIMIT = 50
+
+class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : LinearLayout(ctx, attrs, defStyleAttr) {
 
     constructor(ctx: Context) : this(ctx, null)
 
@@ -30,6 +34,8 @@ class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : Te
             field = value
             render()
         }
+
+    private val textViews = mutableListOf<TextView>()
 
     private var _mode = Mode.Expression
     var mode: Mode
@@ -76,6 +82,9 @@ class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : Te
         get() = _valueColor
 
 
+    private var animateChange = false
+    private var textSize: Int = 14
+
     init {
 
         ctx.theme.obtainStyledAttributes(
@@ -97,10 +106,24 @@ class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : Te
                 _valueColor =
                     getColor(R.styleable.ExpressionView_valueColor, ContextCompat.getColor(context, R.color.dusty_grey))
 
+                animateChange = getBoolean(R.styleable.ExpressionView_animateChange, false)
+                textSize = getDimensionPixelSize(R.styleable.ExpressionView_textSize, 14)
+
             } finally {
                 recycle()
             }
         }
+
+        layoutParams = LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT)
+        orientation = HORIZONTAL
+
+        textViews.addAll(
+            (0 until TEXT_VIEW_LIMIT).map {
+                TextView(context).apply {
+                    layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+                }
+            }
+        )
 
         render()
     }
@@ -109,67 +132,104 @@ class ExpressionView(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int) : Te
 
         if (expression == Expression.EMPTY) return
 
-        val span = SpannableStringBuilder()
-        var p = 0
+        if (expression.terms.size > TEXT_VIEW_LIMIT) throw IllegalArgumentException("Expression is too large, current limit is $TEXT_VIEW_LIMIT terms")
 
-        for (term in expression.terms) {
+        removeAllViews()
 
-            val str = term.toString()
+        repeat(expression.terms.size) { i ->
+            val term = expression.terms[i]
+            val textView = textViews[i]
 
-            when (term) {
-                is Operand -> {
-                    span.append(str)
+            setTermPropertiesToTextView(term, textView)
 
-                    p += str.length
-                }
-                is Operator -> {
-
-                    val s = SpannableString(" $str ")
-                    span.append(s)
-
-                    span.setSpan(StyleSpan(Typeface.BOLD), p, p + s.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-                    span.setSpan(
-                        ForegroundColorSpan(operatorColor),
-                        p,
-                        p + s.length,
-                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-                    )
-
-                    p += s.length
-                }
-            }
+            addView(textView)
         }
 
         if (mode == Mode.Equation) {
-            // adding equals
-            span.append(" = ")
-            span.setSpan(StyleSpan(Typeface.BOLD), p, p + 3, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-            span.setSpan(
-                ForegroundColorSpan(operatorColor),
-                p,
-                p + 3,
-                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-            )
-            p += 3
 
-            // adding value
-            val value = DecimalFormat("0.##############").format(expression.value)
-            span.append(value)
-            span.setSpan(
-                ForegroundColorSpan(valueColor),
-                p,
-                p + value.length,
-                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            // applying equals
+            val eqTv = textViews[expression.terms.size]
+            textViewApplyProperties(
+                eqTv,
+                "=",
+                operatorColor,
+                textSize,
+                Typeface.BOLD,
+                listOf(10, 0, 10, 0)
             )
+
+            addView(eqTv)
+
+            val valueTv = textViews[expression.terms.size + 1]
+            textViewApplyProperties(
+                valueTv,
+                expression.value.toString(),
+                valueColor,
+                textSize,
+                Typeface.BOLD,
+                listOf(0, 0, 0, 0)
+            )
+
+            addView(valueTv)
         }
+    }
 
-        text = span
+    private fun setTermPropertiesToTextView(term: Term, textView: TextView) = when (term) {
+        is Operand -> setOperandPropertiesToTextView(term, textView)
+        is Operator -> setOperatorPropertiesToTextView(term, textView)
+        else -> throw IllegalArgumentException("Term $term does not supported")
+    }
+
+
+    private fun setOperandPropertiesToTextView(operand: Operand, tv: TextView) = textViewApplyProperties(
+        tv,
+        operand.toString(),
+        operandColor,
+        textSize,
+        Typeface.NORMAL,
+        listOf(0, 0, 0, 0)
+    )
+
+    private fun setOperatorPropertiesToTextView(operator: Operator, tv: TextView) = textViewApplyProperties(
+        tv,
+        operator.toString(),
+        operatorColor,
+        textSize,
+        Typeface.BOLD,
+        listOf(10, 0, 10, 0)
+    )
+
+    companion object {
+
+        /**
+         * applying provided properties to selected text view
+         * @param tv [TextView]
+         * @param str text property
+         * @param textColor direct text color not resource/color
+         * @param textSize text size in pixels
+         * @param margins margins array [start, top, end, bottom]
+         * */
+        fun textViewApplyProperties(
+            tv: TextView,
+            str: String,
+            textColor: Int,
+            textSize: Int,
+            typeface: Int,
+            margins: List<Int>
+        ) = tv.apply {
+            text = str
+            setTextColor(textColor)
+            setTypeface(this.typeface, typeface)
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize.toFloat())
+            (layoutParams as LayoutParams).setMargins(margins[0], margins[1], margins[2], margins[3])
+        }
     }
 
     enum class Mode {
         Expression,
         Equation
     }
+
 }
 
 private fun Int.toMode(): ExpressionView.Mode = ExpressionView.Mode.values()[this]

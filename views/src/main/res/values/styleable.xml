@@ -8,5 +8,7 @@
         <attr name="operatorColor" format="color"/>
         <attr name="operandColor" format="color"/>
         <attr name="valueColor" format="color"/>
+        <attr name="animateChange" format="boolean"/>
+        <attr name="textSize" format="dimension"/>
     </declare-styleable>
 </resources>
