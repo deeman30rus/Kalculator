@@ -43,14 +43,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
     />
-    <com.delizarov.views.com.delizarov.views.expression.ExpressionView
-            android:id="@+id/expression_view"
+    <com.delizarov.views.com.delizarov.views.TypeWriter
+            android:id="@+id/typewriter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp"
             android:textColor="@color/dusty_grey"
-            app:mode="expression"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/result_view"
             app:textSize="28sp"

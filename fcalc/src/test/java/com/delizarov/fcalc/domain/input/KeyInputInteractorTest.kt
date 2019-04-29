@@ -1,6 +1,6 @@
 package com.delizarov.fcalc.domain.input
 
-import com.delizarov.fcalc.domain.impl.KeyInputInteractor
+import com.delizarov.fcalc.domain.KeyInputInteractor
 import com.delizarov.views.com.delizarov.views.keyboard.Key
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
